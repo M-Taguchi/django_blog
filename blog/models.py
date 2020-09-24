@@ -4,7 +4,6 @@ from django.utils import timezone
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.name
@@ -12,7 +11,6 @@ class Category(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.name
