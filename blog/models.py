@@ -22,7 +22,7 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     text = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(auto_now=True)
+    updated_date = models.DateTimeField(blank=True, null=True)
     published_date = models.DateTimeField(blank=True, null=True)
     is_public = models.BooleanField(default=False)
 
@@ -35,6 +35,8 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         if self.is_public and not self.published_date:
             self.published_date = timezone.now()
+        elif self.is_public and self.published_date:
+            self.updated_date = timezone.now()
         super().save(*args, **kwargs)
 
     def __str__(self):
