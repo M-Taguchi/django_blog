@@ -1,0 +1,17 @@
+<!-- blog/index.html -->
+
+{% extends 'blog/base.html' %}
+
+<h1>投稿一覧</h1>
+<ul>
+    {% block content %}
+        {% for post in post_list %}
+            {% if user.is_authenticated or post.is_public %}
+                <p>投稿日：{{ post.created_date }}</p>
+                <p>{% if not post.is_public %}[下書き]{% endif %}{{ post.title }}</p>
+            {% endif %}
+            {% empty %}
+                <p>まだ投稿はありません。</p>
+        {% endfor %}
+    {% endblock %}
+</ul>
