@@ -10,6 +10,15 @@ from blog.models import Post, Category, Tag
 
 # Create your views here.
 
+class PostDetailView(DetailView):
+    model = Post
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        if not obj.is_public:
+            raise Http404
+        return obj
+
 class IndexView(ListView):
     model = Post
     template_name = 'blog/index.html'

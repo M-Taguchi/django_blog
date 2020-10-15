@@ -1,0 +1,17 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <div class="post">
+        {% if post.published_date %}
+            <div class="date">
+                投稿日 ：{{ post.published_date }}
+                {% if post.updated_date %}
+                    更新日 ：{{ post.updated_date }}
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.text|linebreaksbr }}</p>
+    </div>
+{% endblock %}

@@ -7,8 +7,14 @@
     {% block content %}
         {% for post in post_list %}
             {% if user.is_authenticated or post.is_public %}
-                <p>投稿日：{{ post.created_date }}</p>
-                <p>{% if not post.is_public %}[下書き]{% endif %}{{ post.title }}</p>
+                <div class="date">
+                    投稿日 :{{ post.created_date }}
+                    {% if post.updated_date %}
+                        更新日 :{{ post.updated_date }}
+                    {% endif %}
+                </div>
+                <p>{% if not post.is_public %}[下書き]{% endif %}
+                <a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></p>
             {% endif %}
             {% empty %}
                 <p>まだ投稿はありません。</p>
