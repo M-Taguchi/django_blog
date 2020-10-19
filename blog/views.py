@@ -11,7 +11,6 @@ from django.views.generic.list import ListView
 from blog.models import Post, Category, Tag
 from blog.forms import PostForm
 
-
 # Create your views here.
 class PostNew(CreateView):
     model = Post
@@ -58,11 +57,16 @@ class TagListView(ListView):
 class CategoryPostView(ListView):
     model = Post
     template_name = 'blog/category_post.html'
+    paginate_by = 10
 
     def get_queryset(self):
-        category_name = self.kwargs['category_name']
+        category_name = self.kwargs['category_slug']
         self.category = get_object_or_404(Category, name=category_name)
-        qs = super().get_queryset().filter(category=self.category)
+        current_user = self.request.user
+        if current_user.is_authenticated:
+            qs = super().get_queryset().filter(category=self.category)
+        else:
+            qs = super().get_queryset().filter(category=self.category, is_public=True)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -73,11 +77,16 @@ class CategoryPostView(ListView):
 class TagPostView(ListView):
     model = Post
     template_name = 'blog/tag_post.html'
+    paginate_by = 10
 
     def get_queryset(self):
-        tag_name = self.kwargs['tag_name']
+        tag_name = self.kwargs['tag_slug']
         self.tag = get_object_or_404(Tag, name=tag_name)
-        qs = super().get_queryset().filter(tags=self.tag)
+        current_user = self.request.user
+        if current_user.is_authenticated:
+            qs = super().get_queryset().filter(tags=self.tag)
+        else:
+            qs = super().get_queryset().filter(tags=self.tag, is_public=True)
         return qs
 
     def get_context_data(self, **kwargs):

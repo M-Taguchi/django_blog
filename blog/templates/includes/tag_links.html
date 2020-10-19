@@ -1,8 +1,3 @@
-<!-- blog/tag_list.html -->
-
-{% load blog_tags %}
-
-<h1>タグ一覧</h1>
 <ul>
     {% for tag in object_list %}
         <li><a href="{% url 'tag_post' tag.name %}">{{ tag.name }} ({{ tag.num_posts }})</a></li>
