@@ -17,6 +17,7 @@ class PostNew(CreateView):
     model = Post
     form_class = PostForm
     template_name = "blog/post_edit.html"
+
     def form_valid(self, form):
         post = form.save(commit=False)
         post.created_date = timezone.now()
@@ -35,6 +36,15 @@ class PostDetailView(DetailView):
 class IndexView(ListView):
     model = Post
     template_name = 'blog/index.html'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        current_user = self.request.user
+        if current_user.is_authenticated:
+            return queryset
+        else:
+            return Post.objects.filter(is_public=True)
 
 class CategoryListView(ListView):
     queryset = Category.objects.annotate(
