@@ -1,0 +1,20 @@
+<!-- blog/category_post.html -->
+
+<h1>「{{ category.name }}」の投稿一覧</h1>
+<ul>
+    {% for post in object_list %}
+        {% if user.is_authenticated or post.is_public %}
+            <div class="date">
+                    投稿日 :{{ post.created_date }}
+                    {% if post.updated_date %}
+                        更新日 :{{ post.updated_date }}
+                    {% endif %}
+            </div>
+            <p>{% if not post.is_public %}[下書き]{% endif %}
+                <a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></p>
+            {% else %}
+            <li>投稿はありません。</li>
+        {% empty %}
+            <li>まだ投稿はありません。</li>
+    {% endfor %}
+</ul>

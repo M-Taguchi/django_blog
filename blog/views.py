@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.db.models import Count, Q
 from django.http import Http404
 from django.utils import timezone
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
@@ -50,9 +50,40 @@ class CategoryListView(ListView):
     queryset = Category.objects.annotate(
         num_posts=Count('post', filter=Q(post__is_public=True)))
 
+
 class TagListView(ListView):
-    queryset = Tag.objects.annotate(
-        num_posts=Count('post', filter=Q(post__is_public=True)))
+    queryset = Tag.objects.annotate(num_posts=Count(
+        'post', filter=Q(post__is_public=True)))
+
+class CategoryPostView(ListView):
+    model = Post
+    template_name = 'blog/category_post.html'
+
+    def get_queryset(self):
+        category_name = self.kwargs['category_name']
+        self.category = get_object_or_404(Category, name=category_name)
+        qs = super().get_queryset().filter(category=self.category)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = self.category
+        return context
+
+class TagPostView(ListView):
+    model = Post
+    template_name = 'blog/tag_post.html'
+
+    def get_queryset(self):
+        tag_name = self.kwargs['tag_name']
+        self.tag = get_object_or_404(Tag, name=tag_name)
+        qs = super().get_queryset().filter(tags=self.tag)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context
 
 """
 def post_list(request):
