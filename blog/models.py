@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from markdownx.models import MarkdownxField
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -18,7 +19,7 @@ class Tag(models.Model):
 # Create your models here.
 class Post(models.Model):
     title = models.CharField(max_length=200)
-    text = models.TextField()
+    text = MarkdownxField()
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(blank=True, null=True)
     published_date = models.DateTimeField(blank=True, null=True)
