@@ -1,0 +1,26 @@
+<!-- blog/search_post.html -->
+
+{% extends 'blog/base.html' %}
+
+{% block title %}{% if query %}{{ query }}{% endif %} | {{ block.super }}{% endblock %}
+{% block description %}検索ワード「{% if query %}{{ query }}{% endif %}」での検索結果ページです。{% endblock %}
+
+{% block content %}
+<ul>
+    {% for post in object_list %}
+        {% if user.is_authenticated or post.is_public %}
+            <div class="date">
+                投稿日 :{{ post.created_date }}
+                {% if post.updated_date %}
+                    更新日 :{{ post.updated_date }}
+                {% endif %}
+            </div>
+            <p>{% if not post.is_public %}[下書き]{% endif %}
+                <a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></p>
+        {% endif %}
+        {% empty %}
+            <li>まだ投稿はありません。</li>
+    {% endfor %}
+    {% include "blog/pagination.html" %}
+</ul>
+{% endblock %}

@@ -120,6 +120,45 @@ class TagPostView(ListView):
         context['tag'] = self.tag
         return context
 
+class SearchPostView(ListView):
+    model = Post
+    template_name = 'blog/search_post.html'
+    paginate_by = 7
+
+    def search(self, search_keyword):
+        search_keyword = search_keyword.replace('　',' ')
+        search_keywords = []
+        search_keywords = search_keyword.split(' ')
+        
+        queries = [Q(title__icontains=word)|Q(text__icontains=word) for word in search_keywords]
+        query = queries.pop()
+        for item in queries:
+            query |= item
+
+        return query
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', None)
+        lookups = self.search(search_keyword=query)
+        current_user = self.request.user
+        if query is not None:
+            if current_user.is_authenticated:
+                qs = super().get_queryset().filter(lookups).distinct().order_by('-published_date')
+            else:
+                qs = super().get_queryset().filter(lookups, is_public=True).distinct().order_by('-published_date')
+            return qs
+        if current_user.is_authenticated:
+            qs = super().get_queryset().order_by('-published_date')
+        else:
+            qs = super().get_queryset().filter(is_public=True).order_by('-published_date')
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get('q')
+        context['query'] = query
+        return context
+
 """
 def post_list(request):
     return render(request, 'blog/post_list.html', {})
