@@ -32,8 +32,9 @@ class PostUpdate(UpdateView):
 
     def form_valid(self, form):
         post = form.save(commit=False)
+        pre_data = Post.objects.get(pk=post.pk)
         if post.is_public:
-            if :
+            if pre_data.is_public:
                 post.updated_date = timezone.now()
             else:
                 post.published_date = timezone.now()
