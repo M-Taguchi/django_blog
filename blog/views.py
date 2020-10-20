@@ -3,10 +3,9 @@ from django.shortcuts import render
 from django.db.models import Count, Q
 from django.http import Http404
 from django.utils import timezone
+from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
-from django.views.generic.edit import CreateView
-from django.views.generic.detail import DetailView
-from django.views.generic.list import ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
 
 from blog.models import Post, Category, Tag
 from blog.forms import PostForm
@@ -20,15 +19,41 @@ class PostNew(CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.created_date = timezone.now()
+        if post.is_public:
+            post.published_date = timezone.now()
         post.save()
-        return redirect('/')
+        return redirect('post_detail', pk=post.pk)
+        
+
+class PostUpdate(UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = "blog/post_edit.html"
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        if post.is_public:
+            if :
+                post.updated_date = timezone.now()
+            else:
+                post.published_date = timezone.now()
+        post.save()
+        return redirect('post_detail', pk=post.pk)
+        
+
+class PostDelete(DeleteView):
+    model = Post
+    template_name = "blog/post_delete.html"
+
+    success_url = '/'
 
 class PostDetailView(DetailView):
     model = Post
 
     def get_object(self, queryset=None):
         obj = super().get_object(queryset=queryset)
-        if not obj.is_public:
+        current_user = self.request.user
+        if not obj.is_public and not current_user.is_authenticated:
             raise Http404
         return obj
 
@@ -43,7 +68,7 @@ class IndexView(ListView):
         if current_user.is_authenticated:
             return queryset
         else:
-            return Post.objects.filter(is_public=True)
+            return Post.objects.filter(is_public=True).order_by('-published_date')
 
 class CategoryListView(ListView):
     queryset = Category.objects.annotate(
@@ -64,9 +89,9 @@ class CategoryPostView(ListView):
         self.category = get_object_or_404(Category, name=category_name)
         current_user = self.request.user
         if current_user.is_authenticated:
-            qs = super().get_queryset().filter(category=self.category)
+            qs = super().get_queryset().filter(category=self.category).order_by('-published_date')
         else:
-            qs = super().get_queryset().filter(category=self.category, is_public=True)
+            qs = super().get_queryset().filter(category=self.category, is_public=True).order_by('-published_date')
         return qs
 
     def get_context_data(self, **kwargs):
@@ -84,9 +109,9 @@ class TagPostView(ListView):
         self.tag = get_object_or_404(Tag, name=tag_name)
         current_user = self.request.user
         if current_user.is_authenticated:
-            qs = super().get_queryset().filter(tags=self.tag)
+            qs = super().get_queryset().filter(tags=self.tag).order_by('-published_date')
         else:
-            qs = super().get_queryset().filter(tags=self.tag, is_public=True)
+            qs = super().get_queryset().filter(tags=self.tag, is_public=True).order_by('-published_date')
         return qs
 
     def get_context_data(self, **kwargs):
